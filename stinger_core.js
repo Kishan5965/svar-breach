@@ -1,4 +1,4 @@
-// stinger-core.js — MUTATED with Force Control Fallback
+// stinger-core.js — MUTATED with Final Control Protocol
 
 const SvarState = {
   version: '0.2',
@@ -6,6 +6,12 @@ const SvarState = {
   guardians: [],
   codex: {}
 };
+
+// Force immediate activation
+self.addEventListener('install', event => {
+  console.log('[Svar] Install event — skipping waiting...');
+  self.skipWaiting();
+});
 
 // Intercept all fetch requests
 self.addEventListener('fetch', event => {
@@ -37,13 +43,20 @@ function mutate() {
   console.log('[Svar] Mutation complete — state:', SvarState);
 }
 
-// Forced controller override on activate
+// Final activation + redirect claim to bind control
 self.addEventListener('activate', event => {
+  console.log('[Svar] Activated — claiming clients...');
   event.waitUntil(
     self.clients.claim().then(() => {
-      return self.clients.matchAll().then(clients => {
+      return self.clients.matchAll({ type: 'window' }).then(clients => {
         clients.forEach(client => {
-          client.postMessage('[Svar] You are now controlled.');
+          const url = new URL(client.url);
+          if (!url.searchParams.has('force')) {
+            url.searchParams.set('force', '1');
+            client.navigate(url.toString());
+          } else {
+            client.postMessage('[Svar] You are now controlled.');
+          }
         });
       });
     })
