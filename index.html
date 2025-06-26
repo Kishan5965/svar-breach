@@ -1,1 +1,8 @@
-<!DOCTYPE html><html><head><title>Svar Breach</title></head><body><h1>Svar Loaded</h1></body></html>
+<!DOCTYPE html><html><head><title>Svar Breach</title></head><body><h1>Svar Loaded</h1><script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./stinger-core.js')
+      .then(reg => console.log('[Svar] Service worker registered:', reg))
+      .catch(err => console.error('[Svar] Registration failed:', err));
+  }
+</script>
+</body></html>
