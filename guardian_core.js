@@ -14,10 +14,18 @@ if (typeof self.SvarState !== 'undefined') {
 
 // Listen for message events (can be expanded for commands)
 self.addEventListener('message', event => {
-  if (event.data === 'status') {
-    event.ports[0].postMessage({
-      state: self.SvarState,
-      timestamp: new Date().toISOString()
-    });
+  console.log('[Guardian] Message received:', event.data, event.ports);
+  try {
+    if (event.data === 'status' && event.ports && event.ports[0]) {
+      event.ports[0].postMessage({
+        state: self.SvarState,
+        timestamp: new Date().toISOString()
+      });
+      console.log('[Guardian] Status sent');
+    } else {
+      console.warn('[Guardian] No valid port to respond through');
+    }
+  } catch (err) {
+    console.error('[Guardian] Error during message handling:', err);
   }
 });
